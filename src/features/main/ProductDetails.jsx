@@ -21,54 +21,84 @@ import { goBack } from '@navigation/NavigationRef';
 const { width } = Dimensions.get('window');
 
 const ProductDetails = ({ route }) => {
-  const { product } = route.params;
+  const params = route?.params ?? {};
+  const product = params.product;
+  const id = params.id;
 
-  const [details, setDetails] = useState(product);
+  const [details, setDetails] = useState(product ?? null);
   const [qty, setQty] = useState(1);
   const [index, setIndex] = useState(0);
 
   const sliderRef = useRef(null);
 
-  const images =
-    details.images && details.images.length > 0
-      ? details.images
-      : [details.thumbnail];
-
   useEffect(() => {
-    if (!product?.id) return;
+    const productId = id ?? product?.id;
+    if (!productId) return;
 
-    getProductById(product.id)
+    getProductById(productId)
       .then(res => {
-        const updated = res?.data?.products?.[0];
-        if (updated) {
-          setDetails(prev => ({ ...prev, ...updated }));
+        const fetched = Array.isArray(res?.data)
+          ? res.data[0]
+          : null;
+        if (fetched) {
+          setDetails(fetched);
         }
       })
-      .catch(() => { });
-  }, [product?.id]);
+      .catch((error) => {
+        console.error("prdId", error)
+      });
+  }, [route?.params]);
+
+  console.log("DDeta", details)
+
+  const images = details
+    ? details.images?.length
+      ? details.images
+      : details.thumbnail
+        ? [details.thumbnail]
+        : []
+    : [];
 
   useEffect(() => {
     if (images.length <= 1) return;
 
     const timer = setInterval(() => {
-      const nextIndex = (index + 1) % images.length;
+      const next = (index + 1) % images.length;
       sliderRef.current?.scrollToIndex({
-        index: nextIndex,
+        index: next,
         animated: true,
       });
-      setIndex(nextIndex);
+      setIndex(next);
     }, 3000);
 
     return () => clearInterval(timer);
   }, [index, images.length]);
+
+  if (!details && id) {
+    return (
+      <View style={styles.empty}>
+        <Text>Product not found</Text>
+      </View>
+    );
+  }
+
+
+  if (!details) {
+    return (
+      <LinearGradient
+        colors={[Colors.splashGradientStart, Colors.splashGradientEnd]}
+        style={{ flex: 1 }}
+      />
+    );
+  }
 
   return (
     <LinearGradient
       colors={[Colors.splashGradientStart, Colors.splashGradientEnd]}
       style={styles.container}
     >
+      <StatusBar barStyle="dark-content" />
 
-      <StatusBar barStyle={'dark-content'} />
       <View style={styles.header}>
         <TouchableOpacity onPress={goBack}>
           <ArrowLeft size={22} color={Colors.textPrimary} />
@@ -84,10 +114,10 @@ const ProductDetails = ({ route }) => {
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           onMomentumScrollEnd={e => {
-            const currentIndex = Math.round(
+            const current = Math.round(
               e.nativeEvent.contentOffset.x / width,
             );
-            setIndex(currentIndex);
+            setIndex(current);
           }}
           renderItem={({ item }) => (
             <FastImage
@@ -104,10 +134,7 @@ const ProductDetails = ({ route }) => {
           {images.map((_, i) => (
             <View
               key={i}
-              style={[
-                styles.dot,
-                i === index && styles.dotActive,
-              ]}
+              style={[styles.dot, i === index && styles.dotActive]}
             />
           ))}
         </View>
@@ -166,9 +193,7 @@ const ProductDetails = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
 
   header: {
     paddingTop: 45,
@@ -319,6 +344,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.surface,
   },
+  empty: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
 });
 
 export default ProductDetails;

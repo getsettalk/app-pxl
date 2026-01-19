@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  StatusBar,
 } from 'react-native';
 
 import LinearGradient from 'react-native-linear-gradient';
@@ -90,7 +91,7 @@ const ProductScreen = () => {
       <TouchableOpacity style={[styles.card, isList && styles.cardList]} onPress={() => navigate(ScreenNames.ProductDetailsScreen, {
         product: item,
       })}>
-      
+
         {isGrid && (
           <View style={styles.topRowCard}>
             <View style={styles.ratingContainer}>
@@ -110,12 +111,14 @@ const ProductScreen = () => {
         />
 
         <View style={[styles.content, isList && styles.contentList]}>
-        
-          {isList && <StarRating rating={item.rating} />}
 
           <Text numberOfLines={2} style={styles.title}>
             {item.title}
           </Text>
+
+          {isList && <StarRating rating={item.rating} />}
+
+
 
           <View style={styles.bottomRow}>
             <Text style={styles.price}>₹ {item.price}</Text>
@@ -136,9 +139,10 @@ const ProductScreen = () => {
       colors={[Colors.splashGradientStart, Colors.splashGradientEnd]}
       style={styles.container}
     >
+      <StatusBar barStyle="dark-content" />
       <Text style={styles.header}>Explore</Text>
 
-   
+
       <View style={styles.searchRow}>
         <Search size={18} color={Colors.textSecondary} />
         <TextInput
@@ -153,7 +157,7 @@ const ProductScreen = () => {
         />
       </View>
 
-     
+
       <View style={styles.topRow}>
         <Text style={styles.countText}>
           Products ({searchedProducts.length})
@@ -177,10 +181,10 @@ const ProductScreen = () => {
         </View>
       </View>
 
-   
+
       {isLoading ? (
         <View style={styles.loader}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <ActivityIndicator size="large" color={Colors.success} />
         </View>
       ) : (
         <FlatList
@@ -275,6 +279,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Colors.textPrimary,
   },
+ 
 
   columnWrapper: {
     justifyContent: 'space-between',
@@ -318,7 +323,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: Fonts.medium,
     color: Colors.textPrimary,
-    marginVertical: Spacing.xs,
+
   },
 
   price: {
@@ -347,6 +352,7 @@ const styles = StyleSheet.create({
 
   starRow: {
     flexDirection: 'row',
+    marginVertical: Spacing.xs,
   },
 
   loader: {

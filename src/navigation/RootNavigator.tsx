@@ -9,9 +9,24 @@ import ProductDetails from '@features/main/ProductDetails';
 
 const Stack = createNativeStackNavigator();
 
+
+const linking = {
+  prefixes: ['https://rimeso.in'],
+  config: {
+    screens: {
+      MainTabs: {
+        screens: {
+          [ScreenNames.ProductListScreen]: 'test.txt',
+        },
+      },
+      [ScreenNames.ProductDetailsScreen]: 'product/:id',
+    },
+  },
+};
+
 const RootNavigator = () => {
   return (
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer ref={navigationRef} linking={linking}>
       <Stack.Navigator screenOptions={{
         headerShown: false
       }}>
